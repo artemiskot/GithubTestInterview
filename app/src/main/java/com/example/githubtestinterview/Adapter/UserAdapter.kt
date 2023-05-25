@@ -32,7 +32,7 @@ class UserAdapter(private val users: List<User>) : RecyclerView.Adapter<UserAdap
         // Bind data to views
         holder.usernameTextView.text = user.login
         holder.scoreTextView.text = user.score.toString()
-        // Load avatar image with a library like Glide or Picasso
+
     }
 
     override fun getItemCount() = users.size
