@@ -3,7 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="@drawable/card_background"
+    android:layout_marginBottom="8dp"
+    >
 
     <ImageView
         android:id="@+id/avatarImageView"
@@ -16,7 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingStart="16dp">
+        android:paddingStart="16dp"
+        android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/usernameTextView"
@@ -24,11 +28,13 @@
             android:layout_height="wrap_content"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/scoreTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_orange_dark"
-            android:textSize="16sp" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/scoreTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_orange_dark"
+        android:textSize="16sp" />
+
 </LinearLayout>

@@ -15,6 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import android.Manifest
 import android.util.Log
+import android.view.View
 
 
 class MainActivity : AppCompatActivity() {
@@ -93,25 +94,54 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun performSearch(query: String) {
+        showLoading(true)
         CoroutineScope(Dispatchers.IO).launch {
-            Log.d("MainActivity", "performSearch started with query: $query")
+            try {
+                Log.d("MainActivity", "performSearch started with query: $query")
 
-            val userSearchDeferred = async { githubService.searchUsers(query) }
-            val repoSearchDeferred = async { githubService.searchRepositories(query) }
+                val userSearchDeferred = async { githubService.searchUsers(query) }
+                val repoSearchDeferred = async { githubService.searchRepositories(query) }
 
-            val userSearchResults = userSearchDeferred.await()
-            val repoSearchResults = repoSearchDeferred.await()
+                val userSearchResults = userSearchDeferred.await()
+                val repoSearchResults = repoSearchDeferred.await()
 
-            Log.d("MainActivity", "userSearchResults: $userSearchResults")
-            Log.d("MainActivity", "repoSearchResults: $repoSearchResults")
+                Log.d("MainActivity", "userSearchResults: $userSearchResults")
+                Log.d("MainActivity", "repoSearchResults: $repoSearchResults")
 
-            val combinedResults = (userSearchResults.items + repoSearchResults.items)
 
-            withContext(Dispatchers.Main) {
-                val combinedResults = userSearchResults.items + repoSearchResults.items
-                val adapter = CombinedAdapter(combinedResults)
-                binding.recyclerView.adapter = adapter
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+                    showError(null)
+
+                    val combinedResults = userSearchResults.items + repoSearchResults.items
+                    val adapter = CombinedAdapter(combinedResults)
+                    binding.recyclerView.adapter = adapter
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+                    showError(e.message)
+                }
             }
         }
     }
+
+
+    private fun showError(errorMessage: String?) {
+        if (errorMessage != null) {
+            binding.errorLayout.visibility = View.VISIBLE
+            binding.errorTextView.text = errorMessage
+        } else {
+            binding.errorLayout.visibility = View.GONE
+        }
+    }
+    
+    private fun showLoading(show: Boolean) {
+        if (show) {
+            binding.loadingProgressBar.visibility = View.VISIBLE
+        } else {
+            binding.loadingProgressBar.visibility = View.GONE
+        }
+    }
+
 }
