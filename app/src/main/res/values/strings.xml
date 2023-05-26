@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GithubTestInterview</string>
+    <string name="error_message">Error message</string>
+    <string name="try_again">Try again</string>
 </resources>

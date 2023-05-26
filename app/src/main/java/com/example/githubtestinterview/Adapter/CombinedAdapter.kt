@@ -5,13 +5,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.githubtestinterview.Entities.Repo
+import com.example.githubtestinterview.Entities.SearchResult
 import com.example.githubtestinterview.Entities.User
 import com.example.githubtestinterview.R
 import com.example.githubtestinterview.RepoContentActivity
 import com.example.githubtestinterview.databinding.UserItemBinding
 import com.example.githubtestinterview.databinding.RepoItemBinding
 
-class CombinedAdapter(private val items: List<Any>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CombinedAdapter(private val items: List<SearchResult>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val TYPE_USER = 0
@@ -20,8 +21,8 @@ class CombinedAdapter(private val items: List<Any>) : RecyclerView.Adapter<Recyc
 
     override fun getItemViewType(position: Int): Int {
         return when (items[position]) {
-            is User -> TYPE_USER
-            is Repo -> TYPE_REPO
+            is SearchResult.UserResult -> TYPE_USER
+            is SearchResult.RepoResult -> TYPE_REPO
             else -> throw IllegalArgumentException("Invalid type of data " + position)
         }
     }
@@ -43,10 +44,19 @@ class CombinedAdapter(private val items: List<Any>) : RecyclerView.Adapter<Recyc
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = items[position]
         when (holder) {
-            is UserViewHolder -> holder.bind(item as User)
-            is RepoViewHolder -> holder.bind(item as Repo)
+            is UserViewHolder -> {
+                val user = (item as SearchResult.UserResult).user
+                holder.bind(user)
+            }
+            is RepoViewHolder -> {
+                val repo = (item as SearchResult.RepoResult).repo
+                holder.bind(repo)
+            }
         }
     }
+
+
+
 
     override fun getItemCount(): Int = items.size
 
@@ -88,6 +98,5 @@ class CombinedAdapter(private val items: List<Any>) : RecyclerView.Adapter<Recyc
             }
         }
     }
-
-
 }
+

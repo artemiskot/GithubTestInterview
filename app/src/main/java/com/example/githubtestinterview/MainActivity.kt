@@ -14,8 +14,11 @@ import kotlinx.coroutines.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import android.Manifest
+import android.content.Context
+import android.net.ConnectivityManager
 import android.util.Log
 import android.view.View
+import com.example.githubtestinterview.Entities.SearchResult
 
 
 class MainActivity : AppCompatActivity() {
@@ -46,8 +49,14 @@ class MainActivity : AppCompatActivity() {
             // Запрос разрешения доступа к Интернету
             requestInternetPermission()
         }
+
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
+                binding.retryButton.setOnClickListener {
+                    showError(null)
+                    performSearch(query)
+                }
+
                 if (query.length >= 3) {
                     performSearch(query)
                 }
@@ -95,6 +104,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun performSearch(query: String) {
         showLoading(true)
+        if (!isNetworkConnected()) {
+            showLoading(false)
+            showError("Отсутствует соединение с интернетом, подключитесь к сети и попробуйте снова")
+            return
+        }
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 Log.d("MainActivity", "performSearch started with query: $query")
@@ -105,16 +119,17 @@ class MainActivity : AppCompatActivity() {
                 val userSearchResults = userSearchDeferred.await()
                 val repoSearchResults = repoSearchDeferred.await()
 
-                Log.d("MainActivity", "userSearchResults: $userSearchResults")
-                Log.d("MainActivity", "repoSearchResults: $repoSearchResults")
+                val combinedResults = userSearchResults.items.map { SearchResult.UserResult(it) } +
+                        repoSearchResults.items.map { SearchResult.RepoResult(it) }
 
+                // Sort the results
+                val sortedResults = combinedResults.sortedBy { it.sortKey }
 
                 withContext(Dispatchers.Main) {
                     showLoading(false)
                     showError(null)
 
-                    val combinedResults = userSearchResults.items + repoSearchResults.items
-                    val adapter = CombinedAdapter(combinedResults)
+                    val adapter = CombinedAdapter(sortedResults)
                     binding.recyclerView.adapter = adapter
                 }
             } catch (e: Exception) {
@@ -126,16 +141,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showError(errorMessage: String?) {
         if (errorMessage != null) {
             binding.errorLayout.visibility = View.VISIBLE
             binding.errorTextView.text = errorMessage
+            binding.recyclerView.visibility = View.GONE
+            binding.searchView.visibility = View.GONE
         } else {
             binding.errorLayout.visibility = View.GONE
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.searchView.visibility = View.VISIBLE
         }
     }
-    
+    fun isNetworkConnected(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
+    }
     private fun showLoading(show: Boolean) {
         if (show) {
             binding.loadingProgressBar.visibility = View.VISIBLE

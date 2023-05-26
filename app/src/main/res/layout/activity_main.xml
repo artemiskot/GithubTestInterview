@@ -33,8 +33,9 @@
 
     <LinearLayout
         android:id="@+id/errorLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -46,13 +47,13 @@
             android:id="@+id/errorTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Error message" />
+            android:text="@string/error_message" />
 
         <Button
             android:id="@+id/retryButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Try again" />
+            android:text="@string/try_again" />
 
     </LinearLayout>
 
